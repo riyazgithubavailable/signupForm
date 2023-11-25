@@ -4,15 +4,27 @@ document.addEventListener("DOMContentLoaded", function () {
     // Check if the user is logged in
     const isLoggedIn = localStorage.getItem("accessToken") !== null;
 
-    if (!isLoggedIn) {
-        // Redirect to Signup page if not logged in
-        redirectToSignup();
-    } else {
+    const isSignupPage = window.location.pathname.includes("signup.html");
+    const isProfilePage = window.location.pathname.includes("profile.html");
+
+    if (!isLoggedIn && isProfilePage) {
+        // Redirect to Signup page if not logged in and trying to access Profile page
+        redirectToSignup("You need to log in to access the Profile page.", "error");
+    } else if (isLoggedIn && isSignupPage) {
+        // Redirect to Profile page if logged in and trying to access Signup page
+        redirectToProfile("You are already logged in. Redirecting to Profile page...", "info");
+    } else if (isLoggedIn) {
         // Render Profile page if logged in
         renderProfilePage();
+    } else {
+        // Render Signup page if not logged in
+        redirectToSignup();
     }
 
-    function redirectToSignup() {
+
+
+
+    function redirectToSignup(message = "", messageType = "") {
         app.innerHTML = `
             <div class="container">
             <img src="./asset/Welcome back! 👋welcome.png">
@@ -36,7 +48,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <button type="submit" class="inputclass" id="signupbutton">Signup</button>
                 </form>
-                <p id="signupMessage" class="error"></p>
+                <p id="signupMessage" class="${messageType}">${message}</p>
+
             </div>
         `;
 
@@ -64,6 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
             signupMessage.textContent = "Signup successful!";
             signupMessage.className = "success";
             setTimeout(() => {
+                redirectToProfile("Signup successful! Redirecting to Profile page...", "success");
+
                 renderProfilePage();
             }, 1000);
         });
@@ -87,6 +102,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p class="center">Password: ${password}</p> 
                 <button id="logoutBtn">Logout</button>
                 
+            </div>
+        `;
+
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        logoutBtn.addEventListener("click", function () {
+            // Clear local storage on logout
+            localStorage.clear();
+            // Redirect to Signup page after logout
+            redirectToSignup();
+        });
+    }
+     
+    function redirectToProfile(message = "", messageType = "") {
+        app.innerHTML = `
+            <div class="container">
+                <h2 id="text">${message}</h2>
+                <h2 class="center">Profile</h2>
+                <div class="image-container">
+                <img src="./asset/Vectorcircle.png" alt="my pic">
+                <img src="./asset/Vectorvector.png" alt="my pic">
+                </div>
+                <p class="center">Full Name: ${username}</p>
+                <p class="center">Email:${useremail}</p>
+                <p class="center">Password: ${password}</p> 
+                <button id="logoutBtn">Logout</button>
             </div>
         `;
 
